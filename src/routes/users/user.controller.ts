@@ -9,6 +9,57 @@ import { ROLES } from '../../types/roles';
 import { STATUS_CODES } from '../../types/status-codes';
 import { newToken } from '../../utils/auth.util';
 
+const checkUsernameAvailability = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { username, app_id } = req.params;
+    if (!username || !app_id) {
+      return next(
+        new CustomErrors.BadRequestError('username and app_id required')
+      );
+    }
+    const user = await User.findOne({ username, app_id });
+    if (user) {
+      return next(new CustomErrors.BadRequestError('username already taken'));
+    }
+    res.status(STATUS_CODES.OK).json({
+      available: true
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(STATUS_CODES.BAD_REQUEST).json(err).end();
+  }
+};
+
+// checkEmailAvailability
+const checkEmailAvailability = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { email, app_id } = req.params;
+    if (!email || !app_id) {
+      return next(
+        new CustomErrors.BadRequestError('email and app_id required')
+      );
+    }
+    const user = await User.findOne({ email, app_id });
+    if (user) {
+      return next(new CustomErrors.BadRequestError('email already taken'));
+    }
+    res.status(STATUS_CODES.OK).json({
+      available: true
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(STATUS_CODES.BAD_REQUEST).json(err).end();
+  }
+};
+
 const registerUser = async (
   req: Request,
   res: Response,
@@ -142,6 +193,8 @@ const verifyUser = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 export const userController = {
+  checkUsernameAvailability,
+  checkEmailAvailability,
   registerUser,
   loginUser,
   verifyUser
