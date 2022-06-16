@@ -122,9 +122,10 @@ Authentication system for developers
 ## Development setup
 
 - `git clone REPO_URL`
-- `npm i` to install dependencies
+- Use <a href="https://pnpm.io" target="_blank">pnpm</a> `pnpm i` to install dependencies
+- Or `npm i`
 - copy `.env.example` to `.env`
-- add environment variables to `.env`
+- add environment variables (found in app.config.ts) to `.env`
 - `npm run dev` to start development server
 
 ---
