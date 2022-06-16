@@ -122,8 +122,8 @@ const registerUser = async (
       token[namespace][HASURA_HEADERS.HASURA_DEFAULT_ROLE] = user.default_role;
       token[namespace][HASURA_HEADERS.HASURA_USER_ID] = user._id;
     }
-
-    res.status(STATUS_CODES.CREATED).json({ jwt: newToken(token) });
+    const jwt = await newToken(token, app_id);
+    res.status(STATUS_CODES.CREATED).json({ jwt });
   } catch (err) {
     console.error(err);
     res.status(STATUS_CODES.BAD_REQUEST).json(err).end();
@@ -174,7 +174,8 @@ const loginUser = async (req: Request, res: Response, next: NextFunction) => {
       token[namespace][HASURA_HEADERS.HASURA_USER_ID] = user._id;
     }
 
-    res.status(STATUS_CODES.OK).json({ jwt: newToken(token) });
+    const jwt = await newToken(token, app_id);
+    res.status(STATUS_CODES.OK).json({ jwt });
   } catch (err) {
     console.error(err);
     res.status(STATUS_CODES.UNAUTHORIZED).json(err).end();

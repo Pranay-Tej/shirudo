@@ -1,18 +1,22 @@
 import { hash } from 'bcryptjs';
 import { NextFunction, Request, Response } from 'express';
 import { Model } from 'mongoose';
+import { CONFIG } from '../../config/app.config';
 import { CustomErrors } from '../../errors';
 import { App, IApp } from '../../models/App';
 import { User } from '../../models/User';
 import { ROLES } from '../../types/roles';
 import { STATUS_CODES } from '../../types/status-codes';
 import { crudController } from '../../utils/crud.util';
+import CryptoJS from 'crypto-js';
+import { AppSecret } from '../../models/AppSecret';
 
 const createOneApp =
   (app: Model<IApp>) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { name, password = ROLES.ADMIN } = req.body;
+      const { name, password, jwt_secret = CONFIG.JWT_SECRET } = req.body;
+      let adminUsername = `${name}-${ROLES.ADMIN}`;
 
       if (!name) {
         return next(new CustomErrors.BadRequestError('name required'));
@@ -20,23 +24,32 @@ const createOneApp =
 
       // TODO:
       // use mongoose transaction
-      const doc = await app.create({
+      const appDoc = await app.create({
         ...req.body
       });
 
+      const encryptedSecret = CryptoJS.AES.encrypt(
+        jwt_secret,
+        CONFIG.ENCRYPTION_KEY
+      ).toString();
+      const appSecret = await AppSecret.create({
+        jwt_secret: encryptedSecret,
+        app_id: appDoc.toJSON()._id
+      });
+
       // generate default admin with unique username for the app
-      const passwordHash = await hash(password, 10);
+      const passwordHash = await hash(password || adminUsername, 10);
 
       const user = await User.create({
-        username: `admin-${doc.name}`,
+        username: adminUsername,
         password: passwordHash,
         allowed_roles: [ROLES.ADMIN],
         default_role: ROLES.ADMIN,
-        app_id: doc.toJSON()._id
+        app_id: appDoc.toJSON()._id
       });
 
       // res.status(STATUS_CODES.CREATED).json({ app: doc });
-      res.status(STATUS_CODES.CREATED).json({ app: doc, adminUser: user });
+      res.status(STATUS_CODES.CREATED).json({ app: appDoc, adminUser: user });
     } catch (err) {
       console.error(err);
       res.status(STATUS_CODES.BAD_REQUEST).json(err).end();
@@ -58,14 +71,14 @@ const deleteOneApp =
         );
       }
 
-      const doc = await app
+      const appDoc = await app
         .findOne({
           _id: id,
           name: name
         })
         .exec();
 
-      if (!doc) {
+      if (!appDoc) {
         return next(new CustomErrors.NotFoundError(App.modelName));
       }
 
@@ -85,8 +98,18 @@ const deleteOneApp =
         );
       }
 
-      console.log(`deleting all users of app: ${id} - ${name}`);
+      console.log(`deleting app secret: ${id} - ${name}`);
 
+      // delete app secret
+      const { deletedCount: deletedAppSecretCount = 0 } =
+        await AppSecret.deleteOne({
+          app_id: id
+        });
+      if (deletedAppSecretCount === 0) {
+        return next(new CustomErrors.NotFoundError(AppSecret.modelName));
+      }
+
+      console.log(`deleting all users of app: ${id} - ${name}`);
       // delete all users with this app_id
       const { deletedCount = 0 } = await User.deleteMany({
         app_id: id
@@ -95,7 +118,7 @@ const deleteOneApp =
         return next(new CustomErrors.NotFoundError(User.modelName));
       }
 
-      res.status(STATUS_CODES.NO_CONTENT).json({ app: doc });
+      res.status(STATUS_CODES.NO_CONTENT).json({ app: appDoc });
     } catch (err) {
       console.error(err);
       res.status(STATUS_CODES.BAD_REQUEST).json(err).end();

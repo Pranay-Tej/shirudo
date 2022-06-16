@@ -1,7 +1,10 @@
+import CryptoJs from 'crypto-js';
 import { NextFunction, Request, Response } from 'express';
 import { verify } from 'jsonwebtoken';
 import { CONFIG } from '../config/app.config';
 import { CustomErrors } from '../errors';
+import { NotFoundError } from '../errors/not-found.error';
+import { AppSecret } from '../models/AppSecret';
 import { User } from '../models/User';
 import { SHIRUDO_HEADERS } from '../types/shirudo-headers';
 import { STATUS_CODES } from '../types/status-codes';
@@ -16,8 +19,9 @@ export const authenticate = async (
     console.log('checking user authentication...');
 
     const bearerToken: string = req.header('Authorization') as string;
+    const appIdHeader: string = req.header('ShirudoAppId') as string;
 
-    if (!bearerToken) {
+    if (!bearerToken || !appIdHeader) {
       return next(new CustomErrors.UnauthenticatedError());
     }
 
@@ -27,7 +31,17 @@ export const authenticate = async (
       return next(new CustomErrors.UnauthenticatedError());
     }
 
-    const decoded: any = verify(token, CONFIG.JWT_SECRET);
+    // verify token with app secret
+    const appSecretDoc = await AppSecret.findOne({ app_id: appIdHeader });
+    if (!appSecretDoc) {
+      throw new NotFoundError(AppSecret.modelName);
+    }
+    const decryptedSecret = CryptoJs.AES.decrypt(
+      appSecretDoc.jwt_secret,
+      CONFIG.ENCRYPTION_KEY
+    ).toString(CryptoJs.enc.Utf8);
+
+    const decoded: any = verify(token, decryptedSecret);
 
     const user = await User.findOne(
       { _id: decoded.user_id },
@@ -45,7 +59,7 @@ export const authenticate = async (
     const claimedRole = req.header(SHIRUDO_HEADERS.SHIRUDO_ROLE) as string;
     if (claimedRole && !user.allowed_roles.includes(claimedRole)) {
       return next(
-        new CustomErrors.ForbiddenError(`You do have have ${claimedRole} role`)
+        new CustomErrors.ForbiddenError(`You do not have ${claimedRole} role`)
       );
     }
 

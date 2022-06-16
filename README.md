@@ -13,13 +13,109 @@ Authentication system for developers
 
 ---
 
-## Usage flow
+## Usage
 
-- register app at `/app/register` to create an app and an admin
-- login with `/users/login`
+### Register app
+
+- register app at `/apps/register` to create an app and an admin
+
+```json
+{
+  "name": "app-name",
+  "password": "admin-password",
+  "jwt-secret": "jwt-secret"
+}
+```
+
+- Save `app_id`
+- Admin is created with username `{app-name}-admin`
+
+### Register user
+
 - register new users with `/users/register`
-- add `Authorization` header to http request as `Bearer ${token}`
+- `email` field is optional for registration
+
+```json
+{
+  "username": "user001",
+  "password": "user001",
+  "app_id": "62aae99f415aaa6669bffc12"
+}
+```
+
+### Login
+
+- login with `/users/login`
+- `identity` accepts either `username` or `email` as value
+
+```json
+{
+  "identity": "react-store-admin",
+  "password": "react-store-admin",
+  "app_id": "62ab68a3de14711f5973bce1"
+}
+```
+
+### Authorize API calls
+
+- add `Authorization` header to http request as `Bearer {token}`
+- add `ShirudoAppId` header to http request as `{appId}`
 - verify user token with `/users/verify`
+
+### Check username/email availability for apps
+
+- Useful for sign up form validations
+
+- check username at `/users/check-username/{username_to_check}/{app_id}`
+- check email at `/users/check-email/{email_to_check}/{app_id}`
+
+- If username/email is available
+
+```json
+{
+  "available": true
+}
+```
+
+- If username/email is already taken
+
+```json
+{
+  "statusCode": 400,
+  "message": "username already taken",
+  "name": "BadRequestError"
+}
+```
+
+### Delete app
+
+- Deleting an app deletes it's users (including admin), app secret and app from
+  the database
+- Only admin can delete the app
+- `name` should be passed in the body for confirmation
+
+- make a `DELETE` request at `/apps/{app_id}`
+
+### Usage with Hasura
+
+- enable hasura claims by setting `IS_HASURA_MODE_ENABLED` to true in `env`
+- this will automatically add hasura claims to jwt as below
+
+```json
+{
+  "user_id": "62aaea2e3bf4f7d93c54e99a",
+  "username": "app-admin",
+  "default_role": "admin",
+  "allowed_roles": ["admin"],
+  "https://hasura.io/jwt/claims": {
+    "x-hasura-allowed-roles": ["admin"],
+    "x-hasura-default-role": "admin",
+    "x-hasura-user-id": "62aaea2e3bf4f7d93c54e99a"
+  },
+  "iat": 1655368272,
+  "exp": 1655454672
+}
+```
 
 ---
 
@@ -44,6 +140,7 @@ Authentication system for developers
 
 - bcrypt
 - cors
+- crypto-js
 - dotenv
 - express
 - express-rate-limit
