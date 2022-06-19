@@ -9,8 +9,8 @@ export const CONFIG = {
   ENCRYPTION_KEY: process.env.ENCRYPTION_KEY ?? 'secretkey',
   APPS: [
     process.env.APP_LOCAL_CLIENT ?? 'http://localhost:3000',
-    process.env.REACT_STORE_PROD,
-    process.env.REACT_STORE_DEV
+    process.env.REACT_STORE_PROD as string,
+    process.env.REACT_STORE_DEV as string
   ],
   IS_HASURA_MODE_ENABLED: process.env.IS_HASURA_MODE_ENABLED ?? false
 };
