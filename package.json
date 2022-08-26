@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon src/app.ts",
     "build": "tsc",
-    "start": "export NODE_ENV=production && npm run build && node ./build/app.js",
+    "start": "export NODE_ENV=production && node ./build/app.js",
     "format": "prettier --write ./"
   },
   "keywords": [],
