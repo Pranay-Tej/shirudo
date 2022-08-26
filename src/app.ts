@@ -20,17 +20,20 @@ const limit = rateLimit({
 });
 app.use(limit); // Setting limiter on specific route
 app.use(helmet());
-app.use(
-  cors({
-    origin: CONFIG.APPS
-  })
-);
+app.use(cors());
+// app.use(
+//   cors({
+//     origin: CONFIG.APPS
+//   })
+// );
 app.use(express.json({ limit: '50kb' })); // Body limit is 50
 app.use(morgan('dev'));
 
 // Routes
 app.get('/', (req: Request, res: Response) => {
-  res.json('https://media.giphy.com/media/agmheddabICHK/giphy.gif');
+  res.json({
+    who_dis: 'https://media.giphy.com/media/agmheddabICHK/giphy.gif'
+  });
 });
 
 // Routers
