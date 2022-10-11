@@ -14,8 +14,8 @@ const app = express();
 
 // Middleware libraries
 const limit = rateLimit({
-  max: 100, // max requests
-  windowMs: 60 * 60 * 1000, // 1 Hour
+  max: 600, // max requests
+  windowMs: 60 * 1000, // 1 minute
   message: 'Too many requests, please try again later.' // message to send
 });
 app.use(limit); // Setting limiter on specific route
