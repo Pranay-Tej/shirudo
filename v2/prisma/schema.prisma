@@ -9,3 +9,55 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model App {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name String @unique
+
+  // relations
+  Users User[]
+  Roles Role[]
+}
+
+model User {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  username String
+  email    String?
+  password String
+
+  // FK
+  appId  String
+  roleId String
+
+  // relations
+  App  App  @relation(fields: [appId], references: [id], onDelete: Cascade)
+  Role Role @relation(fields: [roleId], references: [id])
+
+  // restrictions
+  @@unique([appId, username])
+  @@unique([appId, email])
+}
+
+model Role {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name String
+
+  // FK
+  appId String
+
+  // relations
+  App   App    @relation(fields: [appId], references: [id], onDelete: Cascade)
+  Users User[]
+
+  // restrictions
+  @@unique([name, appId])
+}
