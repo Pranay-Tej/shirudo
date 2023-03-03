@@ -2,6 +2,7 @@ import { DEFAULT_ROLES } from '$lib/constants/appConstants';
 import { prisma } from '$lib/server/prismaClient';
 import { error, fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
+import bcryptjs from 'bcryptjs';
 
 export const load: PageServerLoad = async () => {
 	try {
@@ -41,10 +42,12 @@ export const actions: Actions = {
 					}
 				});
 
+				const hashedPassword = await bcryptjs.hash(adminPassword, 10);
+
 				const admin = await tx.user.create({
 					data: {
 						username: `${app.name}-${DEFAULT_ROLES.ADMIN}`,
-						password: adminPassword,
+						password: hashedPassword,
 						App: {
 							connect: {
 								id: app.id

@@ -2,14 +2,17 @@ import { DEFAULT_ROLES } from '$lib/constants/appConstants';
 import { prisma } from '$lib/server/prismaClient';
 import { error, json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import bcryptjs from 'bcryptjs';
 
 export const POST: RequestHandler = async (req) => {
 	try {
 		const body = await req.request.json();
+		const { name, adminPassword } = body;
+
 		const [app, admin] = await prisma.$transaction(async (tx) => {
 			const app = await tx.app.create({
 				data: {
-					name: body.name,
+					name,
 					Roles: {
 						createMany: {
 							data: [{ name: DEFAULT_ROLES.ADMIN }, { name: DEFAULT_ROLES.USER }]
@@ -25,10 +28,12 @@ export const POST: RequestHandler = async (req) => {
 				}
 			});
 
+			const hashedPassword = await bcryptjs.hash(adminPassword, 10);
+
 			const admin = await tx.user.create({
 				data: {
 					username: `${app.name}-${DEFAULT_ROLES.ADMIN}`,
-					password: body.adminPassword,
+					password: hashedPassword,
 					App: {
 						connect: {
 							id: app.id
