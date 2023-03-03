@@ -4,7 +4,8 @@
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",
-		"build": "vite build",
+		"build:dev": "vite build",
+		"build": "prisma migrate deploy && vite build",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
@@ -14,7 +15,8 @@
 		"prisma:seed": "prisma db seed",
 		"prisma:migrate-check": "prisma migrate dev --create-only",
 		"prisma:migrate-dev": "prisma migrate dev",
-		"prisma:push": "prisma db push"
+		"prisma:push": "prisma db push",
+		"prisma:deploy": "prisma migrate deploy"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^2.0.0",
