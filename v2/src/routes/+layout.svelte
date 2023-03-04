@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { navigating } from '$app/stores';
+  import { navigating } from '$app/stores';
 </script>
 
 {#if $navigating}
-	<p>...</p>
+  <p>...</p>
 {/if}
 <slot />

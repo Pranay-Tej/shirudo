@@ -1,9 +1,9 @@
 <script>
-	import { API_ROUTES } from '$lib/constants/apiRoutes';
+  import { API_ROUTES } from '$lib/constants/apiRoutes';
 </script>
 
 <svelte:head>
-	<title>Dashboard &bull; Shirudo</title>
+  <title>Dashboard &bull; Shirudo</title>
 </svelte:head>
 
 <h1>Dashboard</h1>

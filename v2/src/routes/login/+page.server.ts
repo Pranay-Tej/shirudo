@@ -6,37 +6,37 @@ import type { Actions } from './$types';
 import jwt from 'jsonwebtoken';
 
 export const actions: Actions = {
-	default: async (event) => {
-		const data = await event.request.formData();
-		const adminPassword = data.get('password') as string;
+  default: async (event) => {
+    const data = await event.request.formData();
+    const adminPassword = data.get('password') as string;
 
-		if (adminPassword !== SHIRUDO_ADMIN_PASSWORD) {
-			console.error('Invalid crendentials');
-			return fail(400, { credentials: true });
-		}
+    if (adminPassword !== SHIRUDO_ADMIN_PASSWORD) {
+      console.error('Invalid crendentials');
+      return fail(400, { credentials: true });
+    }
 
-		let token;
-		try {
-			token = await jwt.sign(
-				{
-					[AUTH_STATUS]: AUTH_STATUS_AUTHENTICATED
-				},
-				SHIRUDO_ADMIN_PASSWORD,
-				{
-					expiresIn: '1d'
-					// expiresIn: '20s'
-				}
-			);
-		} catch (err) {
-			console.error(err);
-			return fail(500, { serverError: true });
-		}
+    let token;
+    try {
+      token = await jwt.sign(
+        {
+          [AUTH_STATUS]: AUTH_STATUS_AUTHENTICATED,
+        },
+        SHIRUDO_ADMIN_PASSWORD,
+        {
+          expiresIn: '1d',
+          // expiresIn: '20s'
+        }
+      );
+    } catch (err) {
+      console.error(err);
+      return fail(500, { serverError: true });
+    }
 
-		event.cookies.set(AUTH_STATUS, token, {
-			httpOnly: true,
-			maxAge: 24 * 60 * 60 // (in seconds) 24 * 1h * 1m = 1 day
-			// maxAge: 20 // in seconds
-		});
-		throw redirect(303, ROUTES.dashboard);
-	}
+    event.cookies.set(AUTH_STATUS, token, {
+      httpOnly: true,
+      maxAge: 24 * 60 * 60, // (in seconds) 24 * 1h * 1m = 1 day
+      // maxAge: 20 // in seconds
+    });
+    throw redirect(303, ROUTES.dashboard);
+  },
 };
