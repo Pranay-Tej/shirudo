@@ -53,9 +53,16 @@ export const POST: RequestHandler = async (req) => {
 			}
 		);
 
-		return json({
-			token
-		});
+		return json(
+			{
+				token
+			},
+			{
+				headers: {
+					'Access-Control-Allow-Origin': '*'
+				}
+			}
+		);
 	} catch (err) {
 		console.error(err);
 		throw error(500, JSON.stringify(err));
