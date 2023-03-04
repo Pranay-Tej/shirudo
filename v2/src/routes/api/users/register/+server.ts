@@ -2,7 +2,7 @@ import { prisma } from '$lib/server/prismaClient';
 import { error, json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import bcryptjs from 'bcryptjs';
-import { DEFAULT_ROLES } from '$lib/constants/appConstants';
+import { CORS_HEADER, DEFAULT_ROLES } from '$lib/constants/appConstants';
 
 export const POST: RequestHandler = async (req) => {
 	try {
@@ -45,13 +45,16 @@ export const POST: RequestHandler = async (req) => {
 			return user;
 		});
 
-		return json({
-			user: {
-				username: user.username,
-				id: user.id,
-				role: user.Role.name
-			}
-		});
+		return json(
+			{
+				user: {
+					username: user.username,
+					id: user.id,
+					role: user.Role.name
+				}
+			},
+			CORS_HEADER
+		);
 	} catch (err) {
 		console.error(err);
 		throw error(500, JSON.stringify(err));

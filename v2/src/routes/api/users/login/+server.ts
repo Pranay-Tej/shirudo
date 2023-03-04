@@ -4,6 +4,7 @@ import bcryptjs from 'bcryptjs';
 import type { RequestHandler } from './$types';
 import jwt from 'jsonwebtoken';
 import { SHIRUDO_ADMIN_PASSWORD } from '$env/static/private';
+import { CORS_HEADER } from '$lib/constants/appConstants';
 
 export const POST: RequestHandler = async (req) => {
 	try {
@@ -57,11 +58,7 @@ export const POST: RequestHandler = async (req) => {
 			{
 				token
 			},
-			{
-				headers: {
-					'Access-Control-Allow-Origin': '*'
-				}
-			}
+			CORS_HEADER
 		);
 	} catch (err) {
 		console.error(err);

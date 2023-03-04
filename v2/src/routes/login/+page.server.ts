@@ -23,7 +23,8 @@ export const actions: Actions = {
 				},
 				SHIRUDO_ADMIN_PASSWORD,
 				{
-					expiresIn: '20s'
+					expiresIn: '1d'
+					// expiresIn: '20s'
 				}
 			);
 		} catch (err) {
@@ -33,8 +34,8 @@ export const actions: Actions = {
 
 		event.cookies.set(AUTH_STATUS, token, {
 			httpOnly: true,
-			// maxAge: 24 * 60 * 60 // 24 * 1h * 1m = 1 day
-			maxAge: 20 // in seconds
+			maxAge: 24 * 60 * 60 // (in seconds) 24 * 1h * 1m = 1 day
+			// maxAge: 20 // in seconds
 		});
 		throw redirect(303, ROUTES.dashboard);
 	}
