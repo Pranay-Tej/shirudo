@@ -17,3 +17,7 @@
 {#if form?.credentials}
 	<p>Invalid Credentials</p>
 {/if}
+
+{#if form?.serverError}
+	<p>Server error</p>
+{/if}
