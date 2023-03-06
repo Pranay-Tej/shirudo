@@ -3,11 +3,32 @@ import { error, json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import bcryptjs from 'bcryptjs';
 import { CORS_HEADER, DEFAULT_ROLES } from '$lib/constants/appConstants';
+import { z } from 'zod';
 
 export const POST: RequestHandler = async (req) => {
   try {
     const body = await req.request.json();
-    const { username, email, password, appId } = body;
+
+    const UserRegisterInputSchema = z.object({
+      username: z
+        .string()
+        .trim()
+        .min(3)
+        .regex(/^[A-Za-z0-9_-]*$/),
+      email: z.string().trim().email(),
+      password: z.string().trim().min(3),
+      appId: z.string().uuid(),
+    });
+
+    const userRegisterInput = UserRegisterInputSchema.safeParse(body);
+
+    if (!userRegisterInput.success) {
+      console.error(userRegisterInput.error.format());
+
+      throw error(500, JSON.stringify(userRegisterInput.error.flatten()));
+    }
+
+    const { username, email, password, appId } = userRegisterInput.data;
 
     const hashedPassword = await bcryptjs.hash(password, 10);
 

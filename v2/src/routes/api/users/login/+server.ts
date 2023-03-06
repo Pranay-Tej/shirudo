@@ -5,11 +5,32 @@ import type { RequestHandler } from './$types';
 import jwt from 'jsonwebtoken';
 import { SHIRUDO_ADMIN_PASSWORD } from '$env/static/private';
 import { CORS_HEADER } from '$lib/constants/appConstants';
+import { z } from 'zod';
 
 export const POST: RequestHandler = async (req) => {
   try {
     const body = await req.request.json();
-    const { identity, password, appId } = body;
+
+    const UserLoginInputSchema = z.object({
+      identity: z
+        .string()
+        .trim()
+        .min(3)
+        .regex(/^[A-Za-z0-9_-]*$/)
+        .or(z.string().trim().email()),
+      password: z.string().trim().min(3),
+      appId: z.string().uuid(),
+    });
+
+    const userLoginInput = UserLoginInputSchema.safeParse(body);
+
+    if (!userLoginInput.success) {
+      console.error(userLoginInput.error.format());
+
+      throw error(500, JSON.stringify(userLoginInput.error.flatten()));
+    }
+
+    const { identity, password, appId } = userLoginInput.data;
 
     const user = await prisma.user.findFirst({
       where: {

@@ -13,7 +13,7 @@ export const GET: RequestHandler = async (req) => {
   const [, token] = authorization?.split('Bearer ') || [];
 
   if (!token) {
-    throw error(401, 'Unauthorized');
+    throw error(401, 'Unauthenticated');
   }
 
   let decodedToken;
@@ -21,7 +21,7 @@ export const GET: RequestHandler = async (req) => {
   try {
     decodedToken = await jwt.verify(token, SHIRUDO_ADMIN_PASSWORD);
   } catch (err) {
-    throw error(401, 'Unauthorized');
+    throw error(401, 'Unauthenticated');
   }
 
   const user = await prisma.user.findFirst({
@@ -38,7 +38,7 @@ export const GET: RequestHandler = async (req) => {
   });
 
   if (!user) {
-    throw error(401, 'Unauthorized');
+    throw error(401, 'Unauthenticated');
   }
 
   return json(
