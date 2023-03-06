@@ -1,8 +1,8 @@
-import { DEFAULT_ROLES } from '$lib/constants/appConstants';
+import { createApp } from '$lib/server/createApp';
 import { prisma } from '$lib/server/prismaClient';
 import { error, fail } from '@sveltejs/kit';
+import { z } from 'zod';
 import type { Actions, PageServerLoad } from './$types';
-import bcryptjs from 'bcryptjs';
 
 export const load: PageServerLoad = async () => {
   try {
@@ -19,53 +19,25 @@ export const load: PageServerLoad = async () => {
 export const actions: Actions = {
   default: async (event) => {
     try {
-      const data = await event.request.formData();
-      const name = data.get('name') as string;
-      const adminPassword = data.get('password') as string;
+      const data = Object.fromEntries(await event.request.formData());
 
-      const [app, admin] = await prisma.$transaction(async (tx) => {
-        const app = await tx.app.create({
-          data: {
-            name: name,
-            Roles: {
-              createMany: {
-                data: [{ name: DEFAULT_ROLES.ADMIN }, { name: DEFAULT_ROLES.USER }],
-              },
-            },
-          },
-        });
-
-        const adminRole = await tx.role.findFirstOrThrow({
-          where: {
-            name: DEFAULT_ROLES.ADMIN,
-            appId: app.id,
-          },
-        });
-
-        const hashedPassword = await bcryptjs.hash(adminPassword, 10);
-
-        const admin = await tx.user.create({
-          data: {
-            username: `${app.name}-${DEFAULT_ROLES.ADMIN}`,
-            password: hashedPassword,
-            App: {
-              connect: {
-                id: app.id,
-              },
-            },
-            Role: {
-              connect: {
-                id: adminRole.id,
-              },
-            },
-          },
-          include: {
-            Role: true,
-          },
-        });
-
-        return [app, admin];
+      const AppRegisterInputSchema = z.object({
+        name: z.string().trim().min(3).max(255),
+        adminPassword: z.string().trim().min(3).max(255),
       });
+
+      const appRegisterInput = AppRegisterInputSchema.safeParse(data);
+
+      if (!appRegisterInput.success) {
+        console.error(appRegisterInput.error.format());
+
+        throw error(500, JSON.stringify(appRegisterInput.error.flatten()));
+      }
+
+      const { name, adminPassword } = appRegisterInput.data;
+
+      const [app, admin] = await createApp(name, adminPassword);
+
       return { app, admin: { id: admin.id, username: admin.username, role: admin.Role.name } };
     } catch (err) {
       console.error(err);

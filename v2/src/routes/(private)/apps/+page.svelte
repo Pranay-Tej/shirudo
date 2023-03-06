@@ -30,8 +30,8 @@
     <input type="text" name="name" id="name" bind:value={name} required />
     <br />
 
-    <label for="password">App Admin Password</label>
-    <input type="text" name="password" id="password" required />
+    <label for="adminPassword">App Admin Password</label>
+    <input type="text" name="adminPassword" id="adminPassword" required />
     <br />
 
     <button type="submit" disabled={data.apps.some((app) => app.name === name)}>Add new app</button>

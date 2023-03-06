@@ -10,7 +10,7 @@
 
 <form method="POST">
   <label for="password">Shirudo Admin Password</label>
-  <input type="password" id="password" name="password" />
+  <input type="password" id="password" name="password" required />
   <button type="submit">Login</button>
 </form>
 

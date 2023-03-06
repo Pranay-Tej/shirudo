@@ -1,57 +1,29 @@
-import { DEFAULT_ROLES } from '$lib/constants/appConstants';
-import { prisma } from '$lib/server/prismaClient';
+import { createApp } from '$lib/server/createApp';
 import { error, json } from '@sveltejs/kit';
+import { z } from 'zod';
 import type { RequestHandler } from './$types';
-import bcryptjs from 'bcryptjs';
 
 export const POST: RequestHandler = async (req) => {
   try {
     const body = await req.request.json();
-    const { name, adminPassword } = body;
 
-    const [app, admin] = await prisma.$transaction(async (tx) => {
-      const app = await tx.app.create({
-        data: {
-          name,
-          Roles: {
-            createMany: {
-              data: [{ name: DEFAULT_ROLES.ADMIN }, { name: DEFAULT_ROLES.USER }],
-            },
-          },
-        },
-      });
-
-      const adminRole = await tx.role.findFirstOrThrow({
-        where: {
-          name: DEFAULT_ROLES.ADMIN,
-          appId: app.id,
-        },
-      });
-
-      const hashedPassword = await bcryptjs.hash(adminPassword, 10);
-
-      const admin = await tx.user.create({
-        data: {
-          username: `${app.name}-${DEFAULT_ROLES.ADMIN}`,
-          password: hashedPassword,
-          App: {
-            connect: {
-              id: app.id,
-            },
-          },
-          Role: {
-            connect: {
-              id: adminRole.id,
-            },
-          },
-        },
-        include: {
-          Role: true,
-        },
-      });
-
-      return [app, admin];
+    const AppRegisterInputSchema = z.object({
+      name: z.string().trim().min(3).max(255),
+      adminPassword: z.string().trim().min(3).max(255),
     });
+
+    const appRegisterInput = AppRegisterInputSchema.safeParse(body);
+
+    if (!appRegisterInput.success) {
+      console.error(appRegisterInput.error.format());
+
+      throw error(500, JSON.stringify(appRegisterInput.error.flatten()));
+    }
+
+    const { name, adminPassword } = appRegisterInput.data;
+
+    const [app, admin] = await createApp(name, adminPassword);
+
     return json({ app, admin: { id: admin.id, username: admin.username, role: admin.Role.name } });
   } catch (err) {
     console.error(err);
