@@ -4,7 +4,7 @@
   import { goto, invalidate } from '$app/navigation';
   import { ROUTES, ROUTE_DATA_KEYS } from '$lib/constants/routes';
   import { API_ROUTES } from '$lib/constants/apiRoutes';
-  import { DEFAULT_ROLES } from '$lib/constants/appConstants';
+  import { DEFAULT_ROLE } from '$lib/constants/appConstants';
 
   export let data: PageData;
 
@@ -66,9 +66,7 @@
         <span>
           {role.name}
         </span>
-        <button
-          on:click={() => handleDeleteRole(role.id)}
-          disabled={Object.keys(DEFAULT_ROLES).includes(role.name)}
+        <button on:click={() => handleDeleteRole(role.id)} disabled={role.name in DEFAULT_ROLE}
           >Delete
         </button>
       </li>
@@ -86,9 +84,7 @@
     <label for="name">Role Name</label>
     <input type="text" name="name" id="name" bind:value={name} required />
 
-    <button type="submit" disabled={data.app.Roles.some((role) => role.name === name)}
-      >Add new role</button
-    >
+    <button type="submit" disabled={name in DEFAULT_ROLE}>Add new role</button>
   </fieldset>
 </form>
 

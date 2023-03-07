@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 import { SHIRUDO_ADMIN_PASSWORD } from '$env/static/private';
 import { CORS_HEADER } from '$lib/constants/appConstants';
 import { z } from 'zod';
+import { HASURA_HEADERS_CONFIG } from '$lib/constants/hasuraHeaders';
 
 export const POST: RequestHandler = async (req) => {
   try {
@@ -63,24 +64,24 @@ export const POST: RequestHandler = async (req) => {
       throw error(401, 'Invalid credentials');
     }
 
-    const token = await jwt.sign(
-      {
-        username: user.username,
-        id: user.id,
-        role: user.Role.name,
-      },
-      SHIRUDO_ADMIN_PASSWORD,
-      {
-        expiresIn: '150s',
-      }
-    );
+    const tokenPayload: any = {
+      username: user.username,
+      id: user.id,
+      role: user.Role.name,
+    };
 
-    return json(
-      {
-        token,
-      },
-      CORS_HEADER
-    );
+    const namespace = HASURA_HEADERS_CONFIG.HASURA_NAMESPACE;
+    tokenPayload[namespace] = {};
+    tokenPayload[namespace][HASURA_HEADERS_CONFIG.HASURA_ALLOWED_ROLES] = [user.Role.name];
+    tokenPayload[namespace][HASURA_HEADERS_CONFIG.HASURA_DEFAULT_ROLE] = user.Role.name;
+    tokenPayload[namespace][HASURA_HEADERS_CONFIG.HASURA_USER_ID] = user.id;
+
+    const token = await jwt.sign(tokenPayload, SHIRUDO_ADMIN_PASSWORD, {
+      // expiresIn: '150s',
+      expiresIn: '1h',
+    });
+
+    return json({ token }, CORS_HEADER);
   } catch (err) {
     console.error(err);
     throw error(500, JSON.stringify(err));

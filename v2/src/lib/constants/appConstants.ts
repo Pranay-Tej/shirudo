@@ -1,6 +1,6 @@
-export enum DEFAULT_ROLES {
-  ADMIN = 'ADMIN',
-  USER = 'USER',
+export enum DEFAULT_ROLE {
+  admin = 'admin',
+  user = 'user',
 }
 
 export const AUTH_STATUS = 'AUTH_STATUS';

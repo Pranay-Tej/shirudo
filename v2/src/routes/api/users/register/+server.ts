@@ -2,7 +2,7 @@ import { prisma } from '$lib/server/prismaClient';
 import { error, json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import bcryptjs from 'bcryptjs';
-import { CORS_HEADER, DEFAULT_ROLES } from '$lib/constants/appConstants';
+import { CORS_HEADER, DEFAULT_ROLE } from '$lib/constants/appConstants';
 import { z } from 'zod';
 
 export const POST: RequestHandler = async (req) => {
@@ -35,7 +35,7 @@ export const POST: RequestHandler = async (req) => {
     const user = await prisma.$transaction(async (tx) => {
       const userRole = await tx.role.findFirstOrThrow({
         where: {
-          name: DEFAULT_ROLES.USER,
+          name: DEFAULT_ROLE.user,
           appId,
         },
       });

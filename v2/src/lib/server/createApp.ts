@@ -1,4 +1,4 @@
-import { DEFAULT_ROLES } from '$lib/constants/appConstants';
+import { DEFAULT_ROLE } from '$lib/constants/appConstants';
 import { prisma } from './prismaClient';
 import bcryptjs from 'bcryptjs';
 
@@ -9,7 +9,7 @@ export const createApp = (name: string, adminPassword: string) =>
         name,
         Roles: {
           createMany: {
-            data: [{ name: DEFAULT_ROLES.ADMIN }, { name: DEFAULT_ROLES.USER }],
+            data: [{ name: DEFAULT_ROLE.admin }, { name: DEFAULT_ROLE.user }],
           },
         },
       },
@@ -17,7 +17,7 @@ export const createApp = (name: string, adminPassword: string) =>
 
     const adminRole = await tx.role.findFirstOrThrow({
       where: {
-        name: DEFAULT_ROLES.ADMIN,
+        name: DEFAULT_ROLE.admin,
         appId: app.id,
       },
     });
@@ -26,7 +26,7 @@ export const createApp = (name: string, adminPassword: string) =>
 
     const admin = await tx.user.create({
       data: {
-        username: `${app.name}-${DEFAULT_ROLES.ADMIN}`,
+        username: `${app.name}-${DEFAULT_ROLE.admin}`,
         password: hashedPassword,
         App: {
           connect: {

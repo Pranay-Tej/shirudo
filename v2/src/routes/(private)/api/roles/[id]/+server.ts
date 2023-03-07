@@ -1,4 +1,4 @@
-import { DEFAULT_ROLES } from '$lib/constants/appConstants';
+import { DEFAULT_ROLE } from '$lib/constants/appConstants';
 import { prisma } from '$lib/server/prismaClient';
 import { error, json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
@@ -14,7 +14,7 @@ export const DELETE: RequestHandler = async (req) => {
         },
       });
 
-      if (Object.keys(DEFAULT_ROLES).includes(role.name)) {
+      if (role.name in DEFAULT_ROLE) {
         throw error(403, 'Cannot delete default role');
       }
 
