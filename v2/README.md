@@ -36,3 +36,7 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+
+## Netlify Build
+
+- [fix](https://www.prisma.io/docs/guides/other/troubleshooting-orm/help-articles/netlify-caching-issue)
