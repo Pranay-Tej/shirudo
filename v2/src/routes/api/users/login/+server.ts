@@ -3,7 +3,7 @@ import { error, json } from '@sveltejs/kit';
 import bcryptjs from 'bcryptjs';
 import type { RequestHandler } from './$types';
 import jwt from 'jsonwebtoken';
-import { SHIRUDO_ADMIN_SECRET } from '$env/static/private';
+import { SHIRUDO_JWT_SECRET } from '$env/static/private';
 import { CORS_HEADER } from '$lib/constants/appConstants';
 import { z } from 'zod';
 import { HASURA_HEADERS_CONFIG } from '$lib/constants/hasuraHeaders';
@@ -76,7 +76,7 @@ export const POST: RequestHandler = async (req) => {
     tokenPayload[namespace][HASURA_HEADERS_CONFIG.HASURA_DEFAULT_ROLE] = user.Role.name;
     tokenPayload[namespace][HASURA_HEADERS_CONFIG.HASURA_USER_ID] = user.id;
 
-    const token = await jwt.sign(tokenPayload, SHIRUDO_ADMIN_SECRET, {
+    const token = await jwt.sign(tokenPayload, SHIRUDO_JWT_SECRET, {
       // expiresIn: '150s',
       expiresIn: '1h',
     });

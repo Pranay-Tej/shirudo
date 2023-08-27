@@ -1,4 +1,4 @@
-import { SHIRUDO_ADMIN_SECRET } from '$env/static/private';
+import { SHIRUDO_JWT_SECRET } from '$env/static/private';
 import { CORS_HEADER } from '$lib/constants/appConstants';
 import { prisma } from '$lib/server/prismaClient';
 import { error, json } from '@sveltejs/kit';
@@ -19,7 +19,7 @@ export const GET: RequestHandler = async (req) => {
   let decodedToken;
 
   try {
-    decodedToken = await jwt.verify(token, SHIRUDO_ADMIN_SECRET);
+    decodedToken = await jwt.verify(token, SHIRUDO_JWT_SECRET);
   } catch (err) {
     throw error(401, 'Unauthenticated');
   }

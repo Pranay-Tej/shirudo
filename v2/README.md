@@ -21,7 +21,7 @@ Authentication system for developers
 
 ### Dashboard login
 
-- Enter `SHIRUDO_ADMIN_SECRET` specified in `.env` file as password to login
+- Enter `SHIRUDO_ADMIN_PASSWORD` specified in `.env` file as password to login
 
 ### Register app
 
@@ -152,7 +152,8 @@ await axios.get(`${SHIRUDO_BASE_URL}/users/verify`, {
 - Use <a href="https://pnpm.io" target="_blank">pnpm</a>
 - `pnpm i` to install dependencies
 - copy `.env.example` to `.env`
-- `SHIRUDO_ADMIN_SECRET` is used as dashboard login and as jwt secret
+- `SHIRUDO_ADMIN_PASSWORD` is used as dashboard login password
+- `SHIRUDO_JWT_SECRET` is used for signing and verifying JWTs
 - `pnpm run dev` to start development server
 
 ---

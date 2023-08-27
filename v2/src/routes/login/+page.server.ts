@@ -1,4 +1,4 @@
-import { SHIRUDO_ADMIN_SECRET } from '$env/static/private';
+import { SHIRUDO_ADMIN_PASSWORD, SHIRUDO_JWT_SECRET } from '$env/static/private';
 import { AUTH_STATUS, AUTH_STATUS_AUTHENTICATED } from '$lib/constants/appConstants';
 import { ROUTES } from '$lib/constants/routes';
 import { fail, redirect } from '@sveltejs/kit';
@@ -10,7 +10,7 @@ export const actions: Actions = {
     const data = await event.request.formData();
     const adminPassword = data.get('password') as string;
 
-    if (adminPassword !== SHIRUDO_ADMIN_SECRET) {
+    if (adminPassword !== SHIRUDO_ADMIN_PASSWORD) {
       console.error('Invalid credentials');
       return fail(400, { credentials: true });
     }
@@ -21,7 +21,7 @@ export const actions: Actions = {
         {
           [AUTH_STATUS]: AUTH_STATUS_AUTHENTICATED,
         },
-        SHIRUDO_ADMIN_SECRET,
+        SHIRUDO_JWT_SECRET,
         {
           expiresIn: '1d',
           // expiresIn: '20s'
