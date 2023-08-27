@@ -54,6 +54,7 @@
 
 <div>
   <h2>{data.app.name}</h2>
+  <p>App Id: {data.app.id}</p>
 </div>
 
 <button on:click={handleDeleteApp}>Delete App</button>

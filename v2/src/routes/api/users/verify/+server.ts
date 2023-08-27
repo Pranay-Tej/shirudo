@@ -1,4 +1,4 @@
-import { SHIRUDO_ADMIN_PASSWORD } from '$env/static/private';
+import { SHIRUDO_ADMIN_SECRET } from '$env/static/private';
 import { CORS_HEADER } from '$lib/constants/appConstants';
 import { prisma } from '$lib/server/prismaClient';
 import { error, json } from '@sveltejs/kit';
@@ -19,14 +19,14 @@ export const GET: RequestHandler = async (req) => {
   let decodedToken;
 
   try {
-    decodedToken = await jwt.verify(token, SHIRUDO_ADMIN_PASSWORD);
+    decodedToken = await jwt.verify(token, SHIRUDO_ADMIN_SECRET);
   } catch (err) {
     throw error(401, 'Unauthenticated');
   }
 
   const user = await prisma.user.findFirst({
     where: {
-      id: (decodedToken as { id: string }).id,
+      id: (decodedToken as { user_id: string }).user_id,
     },
     include: {
       Role: {
