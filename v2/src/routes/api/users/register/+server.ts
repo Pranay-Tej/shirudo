@@ -4,6 +4,9 @@ import type { RequestHandler } from './$types';
 import bcryptjs from 'bcryptjs';
 import { CORS_HEADER, DEFAULT_ROLE } from '$lib/constants/appConstants';
 import { z } from 'zod';
+import { HASURA_HEADERS_CONFIG } from '$lib/constants/hasuraHeaders';
+import { SHIRUDO_JWT_SECRET } from '$env/static/private';
+import jwt from 'jsonwebtoken';
 
 export const POST: RequestHandler = async (req) => {
   try {
@@ -15,7 +18,7 @@ export const POST: RequestHandler = async (req) => {
         .trim()
         .min(3)
         .regex(/^[A-Za-z0-9_-]*$/),
-      email: z.string().trim().email(),
+      email: z.string().trim().email().optional(),
       password: z.string().trim().min(3),
       appId: z.string().uuid(),
     });
@@ -66,16 +69,24 @@ export const POST: RequestHandler = async (req) => {
       return user;
     });
 
-    return json(
-      {
-        user: {
-          username: user.username,
-          id: user.id,
-          role: user.Role.name,
-        },
-      },
-      CORS_HEADER
-    );
+    const tokenPayload: any = {
+      username: user.username,
+      user_id: user.id,
+      role: user.Role.name,
+    };
+
+    const namespace = HASURA_HEADERS_CONFIG.HASURA_NAMESPACE;
+    tokenPayload[namespace] = {};
+    tokenPayload[namespace][HASURA_HEADERS_CONFIG.HASURA_ALLOWED_ROLES] = [user.Role.name];
+    tokenPayload[namespace][HASURA_HEADERS_CONFIG.HASURA_DEFAULT_ROLE] = user.Role.name;
+    tokenPayload[namespace][HASURA_HEADERS_CONFIG.HASURA_USER_ID] = user.id;
+
+    const token = await jwt.sign(tokenPayload, SHIRUDO_JWT_SECRET, {
+      // expiresIn: '150s',
+      expiresIn: '1h',
+    });
+
+    return json({ token }, CORS_HEADER);
   } catch (err) {
     console.error(err);
     throw error(500, JSON.stringify(err));
