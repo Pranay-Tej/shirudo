@@ -154,6 +154,7 @@ await axios.get(`${SHIRUDO_BASE_URL}/users/verify`, {
 - copy `.env.example` to `.env`
 - `SHIRUDO_ADMIN_PASSWORD` is used as dashboard login password
 - `SHIRUDO_JWT_SECRET` is used for signing and verifying JWTs
+  - `NOTE:` Please make sure it's `at least 32 characters` long for it work properly with Hasura
 - `pnpm run dev` to start development server
 
 ---

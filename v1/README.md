@@ -13,7 +13,7 @@ Authentication system for developers
 
 ---
 
-## Usage
+## Guide
 
 ### Register app
 
@@ -96,7 +96,7 @@ Authentication system for developers
 
 - make a `DELETE` request at `/apps/{app_id}`
 
-### Usage with Hasura
+### Use with Hasura
 
 - enable hasura claims by setting `IS_HASURA_MODE_ENABLED` to true in `env`
 - this will automatically add hasura claims to jwt as below
