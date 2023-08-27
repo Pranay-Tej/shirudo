@@ -44,7 +44,7 @@ Authentication system for developers
 {
   "username": "user001",
   "password": "user001",
-  "app_id": "62aae99f415aaa6669bffc12"
+  "appId": "62aae99f415aaa6669bffc12"
 }
 ```
 
@@ -57,7 +57,7 @@ Authentication system for developers
 {
   "identity": "react-store-admin",
   "password": "react-store-admin",
-  "app_id": "62ab68a3de14711f5973bce1"
+  "appId": "62ab68a3de14711f5973bce1"
 }
 ```
 
