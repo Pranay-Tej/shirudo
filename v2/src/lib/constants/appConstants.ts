@@ -10,5 +10,7 @@ export const AUTH_STATUS_AUTHENTICATED = 'AUTHENTICATED';
 export const CORS_HEADER = {
   headers: {
     'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
   },
 };
