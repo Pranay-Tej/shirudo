@@ -1,4 +1,3 @@
-import { CORS_HEADER } from '$lib/constants/appConstants';
 import { prisma } from '$lib/server/prismaClient';
 import { error, json } from '@sveltejs/kit';
 import { z } from 'zod';
@@ -36,12 +35,9 @@ export const POST: RequestHandler = async (req) => {
     if (user) {
       throw error(500, 'username is already taken');
     }
-    return json(
-      {
-        available: true,
-      },
-      CORS_HEADER
-    );
+    return json({
+      available: true,
+    });
   } catch (err) {
     console.error(err);
     throw error(500, JSON.stringify(err));

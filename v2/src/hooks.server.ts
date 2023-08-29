@@ -5,19 +5,27 @@ import { redirect, type Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import jwt from 'jsonwebtoken';
 
-const options: Handle = async ({ event, resolve }) => {
-  if (event.request.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': 'true',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': '*',
-      },
-    });
+const handleApiCors: Handle = async ({ event, resolve }) => {
+  // Apply CORS header for API routes
+  if (event.url.pathname.startsWith('/api')) {
+    // Required for CORS to work
+    if (event.request.method === 'OPTIONS') {
+      return new Response(null, {
+        headers: {
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': '*',
+          'Access-Control-Allow-Credentials': 'true',
+        },
+      });
+    }
   }
-  return await resolve(event);
+
+  const response = await resolve(event);
+  if (event.url.pathname.startsWith('/api')) {
+    response.headers.append('Access-Control-Allow-Origin', `*`);
+  }
+  return response;
 };
 
 const authenticate: Handle = async ({ event, resolve }) => {
@@ -40,4 +48,4 @@ const authenticate: Handle = async ({ event, resolve }) => {
   return await resolve(event);
 };
 
-export const handle = sequence(options, authenticate);
+export const handle = sequence(handleApiCors, authenticate);
