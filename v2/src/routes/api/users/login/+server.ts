@@ -4,7 +4,6 @@ import bcryptjs from 'bcryptjs';
 import type { RequestHandler } from './$types';
 import jwt from 'jsonwebtoken';
 import { SHIRUDO_JWT_SECRET } from '$env/static/private';
-import { CORS_HEADER } from '$lib/constants/appConstants';
 import { z } from 'zod';
 import { HASURA_HEADERS_CONFIG } from '$lib/constants/hasuraHeaders';
 
@@ -81,7 +80,7 @@ export const POST: RequestHandler = async (req) => {
       expiresIn: '1h',
     });
 
-    return json({ token }, CORS_HEADER);
+    return json({ token });
   } catch (err) {
     console.error(err);
     throw error(500, JSON.stringify(err));

@@ -1,5 +1,4 @@
 import { SHIRUDO_JWT_SECRET } from '$env/static/private';
-import { CORS_HEADER } from '$lib/constants/appConstants';
 import { prisma } from '$lib/server/prismaClient';
 import { error, json } from '@sveltejs/kit';
 import jwt from 'jsonwebtoken';
@@ -41,15 +40,12 @@ export const GET: RequestHandler = async (req) => {
     throw error(401, 'Unauthenticated');
   }
 
-  return json(
-    {
-      decodedToken,
-      user: {
-        username: user.username,
-        id: user.id,
-        role: user.Role.name,
-      },
+  return json({
+    decodedToken,
+    user: {
+      username: user.username,
+      id: user.id,
+      role: user.Role.name,
     },
-    CORS_HEADER
-  );
+  });
 };

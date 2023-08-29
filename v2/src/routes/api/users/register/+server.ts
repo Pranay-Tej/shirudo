@@ -2,7 +2,7 @@ import { prisma } from '$lib/server/prismaClient';
 import { error, json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import bcryptjs from 'bcryptjs';
-import { CORS_HEADER, DEFAULT_ROLE } from '$lib/constants/appConstants';
+import { DEFAULT_ROLE } from '$lib/constants/appConstants';
 import { z } from 'zod';
 import { HASURA_HEADERS_CONFIG } from '$lib/constants/hasuraHeaders';
 import { SHIRUDO_JWT_SECRET } from '$env/static/private';
@@ -86,7 +86,7 @@ export const POST: RequestHandler = async (req) => {
       expiresIn: '1h',
     });
 
-    return json({ token }, CORS_HEADER);
+    return json({ token });
   } catch (err) {
     console.error(err);
     throw error(500, JSON.stringify(err));
